@@ -13,36 +13,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (sign === "in") {
         try {
-            // const exists = await checkUserExists(email);
-            return res.status(200).json({ success:true  });
-        //     if (exists) {
-        //     try {
-        //         const apiKey = await getApi(email, password);
-        //         return res.status(200).json({ apiKey });
-        //     }catch(error){
-        //         console.error('Error getting API key:', error);
-        //         return res.status(500).json({ success: false, error: 'database server error' });
-        //     }
-        // } else {
-        //     return res.status(404).json({ success: false, error: 'User does not exist' });
-        // }
+            const exists = await checkUserExists(email);
+            // return res.status(200).json({ success: exists });
+            if (exists) {
+            try {
+                const apiKey = await getApi(email, password);
+                return res.status(200).json({ apiKey });
+            }catch(error){
+                console.error('Error getting API key:', error);
+                return res.status(500).json({ success: false, error: 'database server error' });
+            }
+        } else {
+            return res.status(404).json({ success: false, error: 'User does not exist' });
+        }
     }catch (error) { 
         console.log('Error checking user existence:', error); 
     }
         
     }
 
-    // if (sign === "up") {
-    //   const exists = checkUserExists(email);
-    //   if (!exists) {
-    //     const apiKey = await saveToDatabase(email, password);
-    //     return res.status(201).json({ success: true, apiKey });
-    //   } else {
-    //     return res.status(409).json({ success: false, error: 'User already exists' });
-    //   }
-    // }
+    if (sign === "up") {
+      const exists = checkUserExists(email);
+      if (!exists) {
+        const apiKey = await saveToDatabase(email, password);
+        return res.status(201).json({ success: true, apiKey });
+      } else {
+        return res.status(409).json({ success: false, error: 'User already exists' });
+      }
+    }
 
-    // return res.status(400).json({ error: 'Invalid sign value' });
+    return res.status(400).json({ error: 'Invalid sign value' });
   } else {
     return res.status(405).json({ error: 'Method not allowed' });
   }

@@ -2,15 +2,7 @@ import newApi from "../api_keys/generate_api";
 import connection from "./connection";
 
 export default function saveToDatabase(email:string, password:string):string {
-    const mysql = require('mysql');
-
-    connection.connect((err: any) => {
-        if (err) {
-        console.error('Error connecting to database: ' + err.stack);
-        return;
-        }
-        console.log('Connected to database as id ' + connection.threadId);
-    });
+    const mysql = require('mysql2');
 
     const createTableQuery = `
         CREATE TABLE IF NOT EXISTS users (

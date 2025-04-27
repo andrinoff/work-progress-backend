@@ -1,6 +1,6 @@
 import connection from "./connection";
 export default function checkUserExists(email: string): boolean {
-    const mysql = require('mysql');
+    const mysql = require('mysql2');
 
 
   try {

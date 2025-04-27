@@ -1,6 +1,6 @@
 import connection from "./connection";
 export default function getApi(email: string, password: string) :string {
-    const mysql = require('mysql');
+    const mysql = require('mysql2');
     try {
         const password = connection.execute(
         'SELECT password FROM users WHERE email = ?',
