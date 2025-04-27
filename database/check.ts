@@ -1,9 +1,10 @@
 import connection from "./connection";
 export default function checkUserExists(email: string): boolean {
+  // Check if the user already exists in the database
+  // and return true or false
+  connection.connect();
     const mysql = require('mysql2');
-
-
-  try {
+    try {
     const [rows] = connection.execute(
       'SELECT * FROM users WHERE email = ?',
       [email]

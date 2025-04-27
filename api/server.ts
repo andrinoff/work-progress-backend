@@ -3,6 +3,7 @@ import checkUserExists from "../database/check";
 import saveToDatabase from "../database/save";
 import getApi from "../database/getApi";
 
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'POST') {
     const { email, password, sign } = req.body;
@@ -19,6 +20,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             try {
                 const apiKey = await getApi(email, password);
                 return res.status(200).json({ apiKey });
+                
             }catch(error){
                 console.error('Error getting API key:', error);
                 return res.status(500).json({ success: false, error: 'database server error' });
@@ -41,8 +43,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(409).json({ success: false, error: 'User already exists' });
       }
     }
-
+    else{
     return res.status(400).json({ error: 'Invalid sign value' });
+}
   } else {
     return res.status(405).json({ error: 'Method not allowed' });
   }

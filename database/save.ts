@@ -3,7 +3,7 @@ import connection from "./connection";
 
 export default function saveToDatabase(email:string, password:string):string {
     const mysql = require('mysql2');
-
+    connection.connect()
     const createTableQuery = `
         CREATE TABLE IF NOT EXISTS users (
         email VARCHAR(255) NOT NULL UNIQUE,
