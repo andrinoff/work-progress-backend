@@ -1,6 +1,6 @@
-import checkUserExists from "./database/check";
-import saveToDatabase from "./database/save";
-import getApi from "./database/getApi";
+import checkUserExists from "../database/check";
+import saveToDatabase from "../database/save";
+import getApi from "../database/getApi";
 
 export default async function handler(req, res) {
     const { method } = req;
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
                 return res.status(200).json ({ success: true, apiKey: apiKey });
             } else {
                 // Save the user to the database
-                return res.error(200).json({ success: false, error: 'User does not exist' });
+                return res.status(200).json({ success: false, error: 'User does not exist' });
             }
         }
         if (sign == "up") {

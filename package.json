@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node api/server.js"
   },
   "dependencies": {
     "@types/node": "^22.15.2",
