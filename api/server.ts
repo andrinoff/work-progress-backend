@@ -32,17 +32,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
     }
 
-    if (sign === "up") {
-      const exists = checkUserExists(email);
-      if (!exists) {
-        const apiKey = await saveToDatabase(email, password);
-        return res.status(201).json({ success: true, apiKey });
-      } else {
-        return res.status(409).json({ success: false, error: 'User already exists' });
-      }
-    }
+    // if (sign === "up") {
+    //   const exists = checkUserExists(email);
+    //   if (!exists) {
+    //     const apiKey = await saveToDatabase(email, password);
+    //     return res.status(201).json({ success: true, apiKey });
+    //   } else {
+    //     return res.status(409).json({ success: false, error: 'User already exists' });
+    //   }
+    // }
 
-    return res.status(400).json({ error: 'Invalid sign value' });
+    // return res.status(400).json({ error: 'Invalid sign value' });
   } else {
     return res.status(405).json({ error: 'Method not allowed' });
   }
