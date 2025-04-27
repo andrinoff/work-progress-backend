@@ -14,8 +14,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (sign === "in") {
       const exists = checkUserExists(email);
       if (exists) {
-        const apiKey = getApi(email, password);
-        return res.status(200).json({ success: true, apiKey });
+        try{
+            const apiKey = getApi(email, password);
+            return res.status(200).json({ success: true, apiKey });
+        }catch(error){
+            console.error('Error getting API key:', error);
+            return res.status(500).json({ success: false, error: 'database server error' });
+        }
       } else {
         return res.status(404).json({ success: false, error: 'User does not exist' });
       }
