@@ -8,23 +8,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { email, password, sign } = req.body;
     // return res.status(200).json({ email, password, sign });
     if (!email || !password || !sign) {
-      return res.status(400).json({ error: 'All fields are required' });
+      return res.status(400).json({email, password, sign});
     }
 
     if (sign === "in") {
         try {
-        const exists = checkUserExists(email);
-        if (exists) {
-        try{
-            const apiKey = await getApi(email, password);
-            return res.status(200).json({ success: true, apiKey });
-        }catch(error){
-            console.error('Error getting API key:', error);
-            return res.status(500).json({ success: false, error: 'database server error' });
-        }
-      } else {
-        return res.status(404).json({ success: false, error: 'User does not exist' });
-      }
+            const exists = await checkUserExists(email);
+            return res.status(200).json({ exists });
+        //     if (exists) {
+        //     try {
+        //         const apiKey = await getApi(email, password);
+        //         return res.status(200).json({ apiKey });
+        //     }catch(error){
+        //         console.error('Error getting API key:', error);
+        //         return res.status(500).json({ success: false, error: 'database server error' });
+        //     }
+        // } else {
+        //     return res.status(404).json({ success: false, error: 'User does not exist' });
+        // }
     }catch (error) { 
         console.log('Error checking user existence:', error); 
     }
