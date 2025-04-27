@@ -13,8 +13,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (sign === "in") {
         try {
-            const exists = await checkUserExists(email);
-            return res.status(200).json({ exists });
+            // const exists = await checkUserExists(email);
+            return res.status(200).json({ success:true  });
         //     if (exists) {
         //     try {
         //         const apiKey = await getApi(email, password);
