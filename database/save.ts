@@ -1,13 +1,8 @@
 import newApi from "../api_keys/generate_api";
+import connection from "./connection";
 
 export default function saveToDatabase(email:string, password:string):string {
     const mysql = require('mysql');
-    const connection = mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-    });
 
     connection.connect((err: any) => {
         if (err) {
