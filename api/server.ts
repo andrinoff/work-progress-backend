@@ -12,8 +12,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (sign === "in") {
-      const exists = checkUserExists(email);
-      if (exists) {
+        try {
+        const exists = checkUserExists(email);
+        if (exists) {
         try{
             const apiKey = getApi(email, password);
             return res.status(200).json({ success: true, apiKey });
@@ -24,6 +25,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } else {
         return res.status(404).json({ success: false, error: 'User does not exist' });
       }
+    }catch (error) { 
+        console.log('Error checking user existence:', error); 
+    }
+        
     }
 
     if (sign === "up") {
