@@ -8,8 +8,8 @@ export default async function handler(req, res) {
         const { password, email, sign, api } = req.body;
         
         // Validate the input
-        if (!password || !email) {
-        return res.status(400).json({ error: 'All fields are required' });
+        if (!password || !email || !sign) {
+            return res.status(400).json({ error: 'All fields are required' });
         }
         if (sign == "in") {
             const exists = checkUserExists(email);
