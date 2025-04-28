@@ -1,5 +1,5 @@
 import connection from "./connection";
-export default function checkUserExists(email: string): string {
+export default function checkUserExists(email: string): boolean {
   // Check if the user already exists in the database
   // and return true or false
   // connection.connect();
@@ -9,16 +9,16 @@ export default function checkUserExists(email: string): string {
       'SELECT * FROM users WHERE email = ?',
       [email]
     );
-    return rows
-  //   if (rows.length > 0) {
-  //     // User exists
-  //     console.log('User exists');
-  //     return true;
-  //   } else {
-  //     // User does not exist
-  //     console.log('User does not exist');
-  //     return false;
-  //   }
+
+    if (rows.length > 0) {
+      // User exists
+      console.log('User exists');
+      return true;
+    } else {
+      // User does not exist
+      console.log('User does not exist');
+      return false;
+    }
   } catch (error) {
     console.error('Error checking user existence:', error);
     return error;
