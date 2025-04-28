@@ -11,7 +11,7 @@ export default function saveToDatabase(email:string, password:string):string {
         )
     `);
      connection.execute( `
-        INSERT INTO users (email, password, api) VALUES (?, ?, ?)
+        INSERT INTO users (email, password, api_key) VALUES (?, ?, ?)
     `);
     const apiKey = newApi();
     console.log('User inserted');
