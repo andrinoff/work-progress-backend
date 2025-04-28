@@ -10,9 +10,6 @@ export default function saveToDatabase(email:string, password:string):string {
         api_key VARCHAR(255)
         )
     `);
-
-
-
      connection.execute( `
         INSERT INTO users (email, password, api) VALUES (?, ?, ?)
     `);
