@@ -7,6 +7,7 @@ import checkUserExists from "../database/check";
 import saveToDatabase from "../database/save";
 import getApi from "../database/getApi";
 import { createTable } from '../database/connection';
+import getEmail from '../database/getEmail';
 
 // --- CORS Configuration ---
 const allowedOrigins = [
@@ -122,6 +123,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     return res.status(500).json({ success: false, error: 'Database server error during sign up' });
                 }
             }
+            else if (sign == "getEmail") {
+                try {
+                    const apiKey = req.body.apiKey;
+                    const email = await getEmail(apiKey);
+                    return res.status(200).json({ email });
+            }catch (error) {
+                    console.error(`Error during getEmail for ${email}:`, error);
+                    return res.status(500).json({ success: false, error: 'Database server error during getEmail' });
+                }
+        }
             // --- Invalid Sign Value ---
             else {
                 console.warn(`Invalid 'sign' parameter value received: ${sign}`);
