@@ -14,12 +14,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (sign === "in") {
         try {
-            const exists = await checkUserExists(email);
-            // return res.status(200).json({ success: exists });
+            const exists = await checkUserExists(email); // Doesnt break here, but returns false always
+            return res.status(200).json({ success: exists });
             if (exists) {
             try {
                 const apiKey = await getApi(email, password);
-                return res.status(200).json({ apiKey });
+                return res.status(200).json({ apiKey: apiKey });
                 
             }catch(error){
                 console.error('Error getting API key:', error);
@@ -38,12 +38,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
       const exists = checkUserExists(email); // Doesnt break here
       if (!exists) {
-        const apiKey = await saveToDatabase(email, password, ); // BREAKS HERE
-        return res.status(201).json({ apiKey });
+        const apiKey = await saveToDatabase(email, password, ); // FIXED
+        // return res.status(201).json({ apiKey });
       } 
-    // else {
-    //     return res.status(409).json({ success: false, error: 'User already exists' });
-    //   }
+    else {
+        return res.status(409).json({ success: false, error: 'User already exists' });
+      }
     }
     else{
     return res.status(400).json({ error: 'Invalid sign value' });
