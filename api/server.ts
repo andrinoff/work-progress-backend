@@ -47,6 +47,8 @@ const runCorsMiddleware = util.promisify(corsMiddleware);
 
 // --- Main Serverless Function Handler ---
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    const { email, password, sign } = req.body;
+
     try {
         // --- Apply CORS Middleware FIRST ---
         // Run the CORS middleware and wait for it to finish.
