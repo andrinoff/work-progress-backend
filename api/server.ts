@@ -38,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
       const exists = checkUserExists(email); // Doesnt break here
       if (!exists) {
-        const apiKey = await saveToDatabase(email, password, );
+        const apiKey = await saveToDatabase(email, password, ); // BREAKS HERE
         return res.status(201).json({ apiKey });
       } 
     // else {
