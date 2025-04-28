@@ -37,8 +37,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     else if (sign === "up") {
       const exists = checkUserExists(email);
       if (!exists) {
-        const apiKey = await saveToDatabase(email, password);
-        return res.status(201).json({ success: true, apiKey });
+        const apiKey = await saveToDatabase(email, password, );
+        return res.status(201).json({ success: true, message: apiKey });
       } else {
         return res.status(409).json({ success: false, error: 'User already exists' });
       }

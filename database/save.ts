@@ -24,7 +24,7 @@ export default function saveToDatabase(email:string, password:string):string {
         INSERT INTO users (email, password, api) VALUES (?, ?, ?)
     `;
     const apiKey = newApi();
-    connection.query(insertUserQuery, [email, password, ], (err: any, results: any) => {
+    connection.query(insertUserQuery, [email, password, apiKey], (err: any, results: any) => {
         if (err) {
         console.error('Error inserting user: ' + err.stack);
         return;

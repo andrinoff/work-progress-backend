@@ -22,6 +22,6 @@ export default function getApi(email: string, password: string) :string {
         console.error('Error checking user existence:', error);
         return 'error ' + error;
     } finally {
-        connection.end();
+        // connection.end();
     }
 }
