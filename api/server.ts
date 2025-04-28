@@ -79,12 +79,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             // Destructure body *only* for POST requests *after* CORS
             const { email, password, sign } = req.body;
 
-            if (!email || !password || !sign) {
-                // Log the received body for debugging missing fields
-                console.warn('Missing required fields. Received body:', req.body);
-                return res.status(400).json({ success: false, error: 'Missing required fields: email, password, or sign' });
-            }
-
             // --- Sign In Logic ---
             if (sign === "in") {
                 try {
