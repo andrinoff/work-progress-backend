@@ -5,8 +5,8 @@ export default function checkUserExists(email: string): string {
   // connection.connect();
     const mysql = require('mysql2');
     try {
-    const [rows] = connection.execute(
-      'SELECT password FROM users WHERE email = ?',
+    const rows:string = connection.execute(
+      'SELECT * FROM users WHERE email = ?',
       [email]
     );
     return rows
