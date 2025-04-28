@@ -1,111 +1,121 @@
 // /Users/andrinoff/Documents/local github projects/vscode_extensions/work-progress/work-progress-backend/api/server.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import cors from 'cors'; // Import cors
-import util from 'util'; // Import Node.js util for promisify
+import cors from 'cors';
+import util from 'util';
 
-// Your database functions
 import checkUserExists from "../database/check";
 import saveToDatabase from "../database/save";
 import getApi from "../database/getApi";
-import { createTable } from '../database/connection'; // Assuming createTable is potentially async now
+import { createTable } from '../database/connection';
 
 // --- CORS Configuration ---
-// Define the allowed origins. IMPORTANT: Include your frontend's Vercel URL!
 const allowedOrigins = [
     'https://work-progress-git-development-dreysekis-projects.vercel.app',
-    'http://localhost:3000', // Example for local frontend dev server
-    'https://vswork-progress.vercel.app', // Main production URL - Added https://
+    'http://localhost:3000',
+    'https://vswork-progress.vercel.app',
+    // Add any other origins like specific preview URLs if needed
+    // Example for VS Code extension origin (if requests come from extension UI):
+    // 'vscode-webview://*' // Adjust if needed, might require more specific origin matching
+    // Example for Chrome extension origin:
+    // 'chrome-extension://YOUR_EXTENSION_ID' // Replace with your actual extension ID
 ];
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, browser extensions)
-    // or requests from whitelisted origins
-    // Note: Browser extensions might send an origin like `chrome-extension://<id>`
-    // You might need to explicitly allow that if your requests come from the extension's pages.
-    // If requests come from content scripts injected into allowed web pages, the origin will be the web page's.
-    if (!origin || allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('chrome-extension://')) { // Example for chrome extension
-      callback(null, true);
-    } else {
-      console.error(`CORS blocked origin: ${origin}`); // Log blocked origins for debugging
-      callback(new Error(`Origin ${origin} not allowed by CORS`)); // More specific error
+    // Add logging to see exactly what origin is being received
+    console.log(`CORS Check: Received origin: ${origin}`);
+
+    // Allow requests with no origin (like server-to-server, curl, mobile apps, maybe some extensions)
+    if (!origin) {
+        console.log("CORS Check: Allowing request with no origin");
+        return callback(null, true);
     }
+
+    // Check against allowed origins list
+    if (allowedOrigins.includes(origin)) {
+        console.log(`CORS Check: Allowing origin: ${origin}`);
+        return callback(null, true);
+    }
+
+    // Allow Chrome/VSCode extension origins (adjust patterns as needed)
+    if (origin.startsWith('chrome-extension://') || origin.startsWith('vscode-webview://')) {
+        console.log(`CORS Check: Allowing extension origin: ${origin}`);
+        return callback(null, true);
+    }
+
+    // Otherwise, block the origin
+    console.error(`CORS Check: Blocking origin: ${origin}`);
+    callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
-  methods: ['POST', 'OPTIONS'], // Allow POST and the implicit OPTIONS preflight
-  allowedHeaders: ['Content-Type'], // Specify allowed headers
-  credentials: false // Keep false unless you specifically need credentials/cookies
+  methods: ['POST', 'OPTIONS'], // Methods allowed
+  // IMPORTANT: List all headers the client might send in the actual request
+  // Content-Type is needed for JSON bodies. Add others if used (e.g., Authorization)
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Be more permissive or specific
+  credentials: false
 };
 
-// Create the CORS middleware instance
 const corsMiddleware = cors(corsOptions);
-
-// Promisify the middleware to use with async/await
-// This allows us to `await` the middleware execution.
 const runCorsMiddleware = util.promisify(corsMiddleware);
 // --- End CORS Configuration ---
 
 
 // --- Main Serverless Function Handler ---
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    const { email, password, sign } = req.body;
+    // REMOVED: const { email, password, sign } = req.body; // Don't destructure here
 
     try {
         // --- Apply CORS Middleware FIRST ---
-        // Run the CORS middleware and wait for it to finish.
-        // It will handle OPTIONS preflight requests automatically and add
-        // necessary headers (like Access-Control-Allow-Origin) to the response.
+        // This handles OPTIONS preflight and adds headers to actual responses
         await runCorsMiddleware(req, res);
 
-        // If the request is an OPTIONS preflight request, corsMiddleware likely ended the response.
-        // Vercel might also handle OPTIONS implicitly. We can proceed.
-
         // --- Ensure Database Table Exists ---
-        // Call this *after* CORS, before database operations.
-        // Assuming createTable is refactored to be async or handles its execution correctly.
-        // If createTable is still synchronous: createTable();
-        // If createTable is async: await createTable();
-        createTable(); // Using original synchronous call based on previous context
+        // Call *after* CORS middleware, before DB operations
+        createTable(); // Assuming sync for now
 
         // --- Handle Request Method ---
-        // Now handle the actual request (POST) after CORS headers are set
         if (req.method === 'POST') {
-            // --- Body Parsing ---
-            // Vercel automatically parses JSON bodies for POST requests by default
-            // and puts them in req.body. You usually don't need express.json() here.
-            // If you needed urlencoded, Vercel might parse that too, check Vercel docs if needed.
+            // --- Body Parsing & Validation ---
+            // Destructure body *only* for POST requests *after* CORS
             const { email, password, sign } = req.body;
 
             if (!email || !password || !sign) {
+                // Log the received body for debugging missing fields
+                console.warn('Missing required fields. Received body:', req.body);
                 return res.status(400).json({ success: false, error: 'Missing required fields: email, password, or sign' });
             }
 
             // --- Sign In Logic ---
             if (sign === "in") {
                 try {
-                    const apiKey = await getApi(email, password); // Assuming getApi is async
+                    const apiKey = await getApi(email, password);
                     if (apiKey) {
+                        console.log(`Sign-in successful for: ${email}`);
                         return res.status(200).json({ apiKey: apiKey });
                     } else {
+                        console.warn(`Sign-in failed (invalid credentials/user not found) for: ${email}`);
                         return res.status(401).json({ success: false, error: 'Invalid credentials or user not found' });
                     }
                 } catch (error) {
-                    console.error('Error during sign in:', error);
+                    console.error(`Database error during sign-in for ${email}:`, error);
                     return res.status(500).json({ success: false, error: 'Database server error during sign in' });
                 }
             }
             // --- Sign Up Logic ---
             else if (sign === "up") {
                 try {
-                    const exists = await checkUserExists(email); // Assuming checkUserExists is async
+                    const exists = await checkUserExists(email);
                     if (!exists) {
                         // REMEMBER: Implement password hashing here!
-                        const apiKey = await saveToDatabase(email, password); // Assuming saveToDatabase is async
+                        console.log(`Attempting sign-up for new user: ${email}`);
+                        const apiKey = await saveToDatabase(email, password);
+                        console.log(`Sign-up successful for: ${email}`);
                         return res.status(201).json({ apiKey });
                     } else {
+                        console.warn(`Sign-up failed (user already exists): ${email}`);
                         return res.status(409).json({ success: false, error: 'User already exists' });
                     }
-                } catch (error: any) { // Type error explicitly
-                    console.error('Error during sign up:', error);
+                } catch (error: any) {
+                    console.error(`Error during sign-up for ${email}:`, error);
                     if (error.code === 'ER_DUP_ENTRY') {
                          return res.status(409).json({ success: false, error: 'User already exists (concurrent request?)' });
                     }
@@ -114,26 +124,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
             // --- Invalid Sign Value ---
             else {
+                console.warn(`Invalid 'sign' parameter value received: ${sign}`);
                 return res.status(400).json({ success: false, error: 'Invalid sign parameter value' });
             }
         }
-        // --- Handle Methods Other Than POST (and OPTIONS, which CORS handles) ---
-        else {
-            // Set Allow header for 405 response
+        // --- Handle Methods Other Than POST (OPTIONS is handled by CORS middleware) ---
+        else if (req.method !== 'OPTIONS') { // Explicitly ignore OPTIONS here as it's handled
+            console.log(`Method Not Allowed: ${req.method}`);
             res.setHeader('Allow', ['POST', 'OPTIONS']);
             return res.status(405).end(`Method ${req.method} Not Allowed`);
         }
+        // If it's an OPTIONS request, the CORS middleware should have handled it.
+        // If it hasn't ended the response, we can let it fall through or explicitly end it.
+        // else if (req.method === 'OPTIONS') {
+        //    return res.status(204).end(); // Explicitly handle OPTIONS if needed after middleware
+        // }
 
-    } catch (error: any) { // Catch errors from CORS or other parts of the handler
+    } catch (error: any) {
+        // Log the error caught by the main handler
         console.error('Handler error:', error);
-        // Specifically handle CORS errors if possible
+
+        // Check if it's a CORS error triggered by our origin function
         if (error.message.includes('Not allowed by CORS')) {
              return res.status(403).json({ success: false, error: error.message });
         }
+
         // Generic server error for other issues
-        return res.status(500).json({ success: false, error: error.message
+        // Ensure CORS headers are still potentially added even on error
+        // The 'cors' middleware modifies 'res' directly, so headers might already be set.
+        // However, explicitly setting Allow-Origin on error responses can sometimes help.
+        // res.setHeader('Access-Control-Allow-Origin', '*'); // Or a specific allowed origin
+        return res.status(500).json({
+            success: false,
+            error: 'Internal Server Error',
+            details: error.message // Optionally include details in dev mode
          });
     }
 }
-
-// No need for the Refactor createTable comment here unless you are modifying connection.ts
