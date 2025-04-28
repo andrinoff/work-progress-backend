@@ -14,7 +14,7 @@ var sql = `CREATE TABLE IF NOT EXISTS users (
     api_key VARCHAR(255) PRIMARY KEY
 )`;
 const createTable = ()    => {
-    connection.connect()
+    // connection.connect()
      connection.query(sql, function (err, result) {
     if (err) throw err;
     console.log("Table created");
