@@ -39,17 +39,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const exists = checkUserExists(email); // Doesnt break here
       if (!exists) {
         const apiKey = await saveToDatabase(email, password, ); // FIXED
+        // Now doesnt work :X x
+
         // return res.status(201).json({ apiKey });
       } 
     else {
         return res.status(409).json({ success: false, error: 'User already exists' });
       }
     }
-    else{
-    return res.status(400).json({ error: 'Invalid sign value' });
-}
-  } 
-    else {
-    return res.status(405).json({ error: 'Method not allowed' });
+    
     }
 }
