@@ -129,7 +129,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
              return res.status(403).json({ success: false, error: error.message });
         }
         // Generic server error for other issues
-        return res.status(500).json({ success: false, error: 'Internal Server Error' });
+        return res.status(500).json({ success: false, error: error.message
+         });
     }
 }
 
