@@ -4,6 +4,8 @@ import checkUserExists from "../database/check";
 import saveToDatabase from "../database/save";
 import getApi from "../database/getApi";
 import { createTable } from '../database/connection';
+import express from 'express';
+import cors from 'cors';
 
 // Call createTable once, potentially outside the handler if the environment allows,
 // or ensure it's called reliably before any DB operations.
@@ -12,17 +14,72 @@ import { createTable } from '../database/connection';
 // await createTable(); // This won't work here, needs to be inside async handler or managed differently.
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Ensure table exists (might run on every request in serverless)
-    try {
-        await createTable(); // Await the createTable function if it becomes async (recommended)
-                             // Or handle table creation outside the request path if possible.
-                             // For simplicity now, assume the original createTable works okay here.
-         createTable(); // Keep original sync call for now if not refactoring createTable
-    } catch (tableError) {
-         console.error("Failed to ensure table exists:", tableError);
-         return res.status(500).json({ success: false, error: 'Database initialization failed' });
-    }
+ // Import the cors middleware
+// ... other imports (database functions, etc.)
 
+const app = express();
+
+// --- CORS Configuration ---
+// Define the allowed origins. IMPORTANT: Include your frontend's Vercel URL!
+const allowedOrigins = [
+    'https://work-progress-git-development-dreysekis-projects.vercel.app',
+    // Add other origins if needed (e.g., localhost for development)
+    'http://localhost:3000', // Example for local frontend dev server
+    'http://vswork-progress.vercel.app' // Example for local frontend dev server
+];
+
+const corsOptions: cors.CorsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    // or requests from whitelisted origins
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.error(`CORS blocked origin: ${origin}`); // Log blocked origins for debugging
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // Ensure OPTIONS and POST are allowed
+  allowedHeaders: 'Content-Type, Authorization, X-Requested-With, Accept', // Add any custom headers your frontend sends
+  credentials: true // If you need to handle cookies or authorization headers
+};
+
+// --- Apply CORS Middleware ---
+// IMPORTANT: This MUST come *before* your API routes definition!
+app.use(cors(corsOptions));
+
+// Optional but recommended: Handle OPTIONS requests explicitly for preflight checks
+// This ensures preflight requests pass even if they don't match a specific route method like POST/GET
+app.options('*', cors(corsOptions));
+// --- End CORS Configuration ---
+
+
+// --- Other Middleware ---
+// Body parsing middleware (should generally come after CORS)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// --- End Other Middleware ---
+
+
+// --- Your API Routes ---
+// Example: Your sign-up route likely uses '/api/server' or a sub-path
+app.post('/api/server', async (req, res) => { // Or maybe '/api/signup', '/api/auth/register' etc. - adjust path if needed!
+    try {
+        console.log('Received signup request:', req.body); // Log request body
+        // --- Your existing sign-up logic here ---
+        // Call functions from database/save.ts, database/check.ts etc.
+        // const { email, password } = req.body;
+        // const result = await saveUser(email, password); // Example call
+        // --- End of your logic ---
+
+        res.status(201).json({ message: 'Signup successful' /*, other data */ });
+    } catch (error) {
+        console.error('Error during signup:', error);
+        res.status(500).json({ error: 'Signup failed', details: error.message });
+    }
+});
+
+// Add other routes (GET, PUT, DELETE etc.) here...
 
     if (req.method === 'POST') {
         const { email, password, sign } = req.body;
