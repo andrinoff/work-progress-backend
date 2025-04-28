@@ -1,35 +1,35 @@
+// /Users/andrinoff/Documents/local github projects/vscode_extensions/work-progress/work-progress-backend/database/check.ts
 import connection, { createTable } from "./connection";
-export default function checkUserExists(email: string): boolean {
-  // Check if the user already exists in the database
-  // and return true or false
-  // connection.connect();
+import { RowDataPacket } from 'mysql2'; // Import type for rows
 
-  createTable();
-    const mysql = require('mysql2');
-    try {
-    const rows:string = connection.execute(
-      'SELECT * FROM users WHERE email = ?',
+// Change return type to Promise<boolean> and add async
+export default async function checkUserExists(email: string): Promise<boolean> {
+  // Consider calling createTable only once at application startup if possible
+  // createTable(); // You might remove this if called elsewhere reliably
+
+  try {
+    // Use .promise() for async/await and await the result
+    // Specify expected row type for better type safety
+    const [rows] = await connection.promise().execute(
+      'SELECT email FROM users WHERE email = ? LIMIT 1', // Select only needed field, LIMIT 1 for efficiency
       [email]
-    
     );
-    console.log('Rows:', rows)
-    if (rows === undefined) {
-      return false
-    }
-    else if (rows.length > 0) {
-      // User exists
+
+    console.log('Check User Exists - Rows found:', rows.length);
+
+    // Check if any rows were returned
+    if (rows.length > 0) {
       console.log('User exists');
-      return true;
-    }
-    else {
-      // User does not exist
+      return true; // User found
+    } else {
       console.log('User does not exist');
-      return false;
+      return false; // User not found
     }
   } catch (error) {
     console.error('Error checking user existence:', error);
-    return error;
-  } finally {
-    // connection.end();
+    // Re-throw the error to be handled by the caller (server.ts)
+    // Returning false here could mask database issues and lead to trying to insert again
+    throw error;
   }
+  // No finally block needed here unless cleaning up resources specific to this function
 }

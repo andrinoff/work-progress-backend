@@ -13,13 +13,18 @@ var sql = `CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     api_key VARCHAR(255) PRIMARY KEY
 )`;
-const createTable = ()    => {
-    // connection.connect()
-     connection.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("Table created");
-  }
-    );}
+const createTable = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        connection.query(sql, function (err, result) {
+            if (err) {
+                console.error("Error creating table:", err);
+                return reject(err);
+            }
+            console.log("Table created or already exists.");
+            resolve();
+        });
+    });
+};
 
 export default connection;
 export { createTable };
