@@ -21,7 +21,11 @@ export default function checkUserExists(email: string): boolean {
       // User exists
       console.log('User exists');
       return true;
-    } else {
+    }
+    else if (rows === undefined) {
+      return false
+    }
+    else {
       // User does not exist
       console.log('User does not exist');
       return false;
