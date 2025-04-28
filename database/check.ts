@@ -15,15 +15,16 @@ export default function checkUserExists(email: string): boolean {
     const rows:string = connection.execute(
       'SELECT * FROM users WHERE email = ?',
       [email]
+    
     );
-
-    if (rows.length > 0) {
+    console.log('Rows:', rows)
+    if (rows === undefined) {
+      return false
+    }
+    else if (rows.length > 0) {
       // User exists
       console.log('User exists');
       return true;
-    }
-    else if (rows === undefined) {
-      return false
     }
     else {
       // User does not exist

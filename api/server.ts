@@ -2,10 +2,12 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import checkUserExists from "../database/check";
 import saveToDatabase from "../database/save";
 import getApi from "../database/getApi";
+import { createTable } from '../database/connection';
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'POST') {
+    createTable();
     const { email, password, sign } = req.body;
     // return res.status(200).json({ email, password, sign });
     if (!email || !password || !sign) {
