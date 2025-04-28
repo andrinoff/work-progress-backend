@@ -23,9 +23,8 @@ const app = express();
 // Define the allowed origins. IMPORTANT: Include your frontend's Vercel URL!
 const allowedOrigins = [
     'https://work-progress-git-development-dreysekis-projects.vercel.app',
-    // Add other origins if needed (e.g., localhost for development)
     'http://localhost:3000', // Example for local frontend dev server
-    'http://vswork-progress.vercel.app' // Example for local frontend dev server
+    'http://vswork-progress.vercel.app' // Main production URL
 ];
 
 const corsOptions: cors.CorsOptions = {
@@ -39,9 +38,9 @@ const corsOptions: cors.CorsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // Ensure OPTIONS and POST are allowed
-  allowedHeaders: 'Content-Type, Authorization, X-Requested-With, Accept', // Add any custom headers your frontend sends
-  credentials: true // If you need to handle cookies or authorization headers
+  methods: 'GET, POST', // Ensure OPTIONS and POST are allowed
+  allowedHeaders: 'Content-Type', // Add any custom headers your frontend sends
+  credentials: false // If you need to handle cookies or authorization headers
 };
 
 // --- Apply CORS Middleware ---
@@ -61,25 +60,6 @@ app.use(express.urlencoded({ extended: true }));
 // --- End Other Middleware ---
 
 
-// --- Your API Routes ---
-// Example: Your sign-up route likely uses '/api/server' or a sub-path
-app.post('/api/server', async (req, res) => { // Or maybe '/api/signup', '/api/auth/register' etc. - adjust path if needed!
-    try {
-        console.log('Received signup request:', req.body); // Log request body
-        // --- Your existing sign-up logic here ---
-        // Call functions from database/save.ts, database/check.ts etc.
-        // const { email, password } = req.body;
-        // const result = await saveUser(email, password); // Example call
-        // --- End of your logic ---
-
-        res.status(201).json({ message: 'Signup successful' /*, other data */ });
-    } catch (error) {
-        console.error('Error during signup:', error);
-        res.status(500).json({ error: 'Signup failed', details: error.message });
-    }
-});
-
-// Add other routes (GET, PUT, DELETE etc.) here...
 
     if (req.method === 'POST') {
         const { email, password, sign } = req.body;
