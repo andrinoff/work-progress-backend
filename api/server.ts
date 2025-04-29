@@ -174,7 +174,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             client_id: clientId,
                             client_secret: clientSecret,
                             code: code,
-                            redirect_uri: 'https://vswork-progress.vercel.app' // Optional: Add if you specified one in the initial request
+                            redirect_uri: 'https://vswork-progress.vercel.app/account/github_handler.html' // Optional: Add if you specified one in the initial request
                         }),
                     });
 
