@@ -3,7 +3,7 @@ import connection, { createTable } from "./connection";
 import { RowDataPacket } from 'mysql2';
 
 // Add async, return Promise<string | null> (null indicates error/not found)
-export default async function getApi(email: string, passwordInput: string): Promise<string | null> {
+export default async function getApi(email: string, passwordInput: string|null): Promise<string | null> {
     // Consider calling createTable only once at application startup if possible
     // createTable(); // You might remove this if called elsewhere reliably
 
