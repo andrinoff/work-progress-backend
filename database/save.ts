@@ -1,7 +1,7 @@
 // /Users/andrinoff/Documents/local github projects/vscode_extensions/work-progress/work-progress-backend/database/save.ts
 import newApi from "../api_keys/generate_api";
 import connection, { createTable } from "./connection";
-import { OkPacket } from 'mysql2'; // Import type for insert result
+import bcrypt from 'bcrypt';
 
 // Change return type to Promise<string> and add async
 export default async function saveToDatabase(email: string, password: string): Promise<string> {
@@ -12,10 +12,11 @@ export default async function saveToDatabase(email: string, password: string): P
     const sql = `
         INSERT INTO users (email, password, api_key) VALUES (?, ?, ?)
     `;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
         // Use .promise().query() and await the result
-        const [result] = await connection.promise().query(sql, [email, password, apiKey]);
+        const [result] = await connection.promise().query(sql, [email, hashedPassword, apiKey]);
         console.log('User inserted, ID:', result.insertId); // Log success
         return apiKey; // Return apiKey AFTER successful insertion
     } catch (err) {
