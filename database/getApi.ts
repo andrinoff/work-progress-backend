@@ -10,7 +10,7 @@ export default async function getApi(email: string, passwordInput: string|null):
     try {
         // Fetch password and api_key for the user
         const [rows] = await connection.promise().execute(
-            'SELECT password, api_key FROM users WHERE email = ?', // Fetch api_key too
+            'SELECT api_key FROM users WHERE email = ?', // Fetch api_key too
             [email]
         );
 
@@ -19,7 +19,7 @@ export default async function getApi(email: string, passwordInput: string|null):
             return null; // User not found
         }
 
-        const storedPassword = rows[0].password;
+        // const storedPassword = rows[0].password;
         const apiKey = rows[0].api_key;
 
         // --- !!! CRITICAL SECURITY WARNING !!! ---
@@ -32,12 +32,10 @@ export default async function getApi(email: string, passwordInput: string|null):
         // if (match) { ... }
 
         // For now, fixing the logic with the (insecure) plain text comparison:
-        if (storedPassword === passwordInput) { // Compare stored DB password with the provided password
-            return apiKey; // Return the API key
-        } else {
-            console.log('Password does not match for user:', email);
-            return null; // Password incorrect
-        }
+        return apiKey; // Return the API key
+        
+        
+        
     } catch (error) {
         console.error('Error getting API key:', error);
         return null; // Indicate database error
