@@ -12,12 +12,15 @@ import { createTable } from '../database/connection';
 import getEmail from '../database/getEmail';
 import dotenv from 'dotenv';
 
-// dotenv.config(); // Load environment variables from .env file
+// dotenv.config(); // Load environment variables from .env file - uncomment if needed locally or configure in Vercel
+
 // --- CORS Configuration ---
 const allowedOrigins = [
     'https://work-progress-git-development-dreysekis-projects.vercel.app',
     'http://localhost:3000', // For local web dev
-    'https://vswork-progress.vercel.app',
+    'https://vswork-progress.vercel.app', // <<< The origin mentioned in the error
+    'https://vswork-progress.vercel.app/account/github_handler.html', // Specific page
+
     // Add specific VS Code extension origins if needed, e.g.:
     // 'vscode-webview://vscode.git', // Example, adjust based on actual origin
 ];
@@ -45,8 +48,8 @@ const corsOptions: cors.CorsOptions = {
     console.error(`CORS Check: Blocking origin: ${origin}`);
     callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
-  methods: ['POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  methods: ['POST', 'OPTIONS'], // Ensure OPTIONS is allowed
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Ensure all headers sent by client are listed
   credentials: false // Typically false for public APIs unless using cookies/sessions
 };
 
@@ -58,14 +61,22 @@ const runCorsMiddleware = util.promisify(corsMiddleware);
 // --- Main Serverless Function Handler ---
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
-        // Run CORS middleware first
+        // Run CORS middleware first. It will handle OPTIONS requests automatically.
         await runCorsMiddleware(req, res);
 
-        // Handle OPTIONS preflight requests
-        if (req.method === 'OPTIONS') {
-            console.log("Handling OPTIONS request");
-            return res.status(204).end(); // No Content
-        }
+        // --- REMOVED THE MANUAL OPTIONS HANDLING BLOCK ---
+        // if (req.method === 'OPTIONS') {
+        //     console.log("Handling OPTIONS request");
+        //     return res.status(204).end(); // No Content
+        // }
+        // --- END REMOVAL ---
+
+        // If the request was OPTIONS, the cors middleware should have already ended the response.
+        // We only proceed if it wasn't an OPTIONS request handled by the middleware.
+        // Note: Some configurations of the cors middleware might call next() even on OPTIONS,
+        // but the default behavior usually sends the response. If you still hit issues,
+        // you might need to check if the response was already sent before proceeding.
+        // However, typically, removing the manual block is sufficient.
 
         // Ensure database table exists (idempotent)
         await createTable();
@@ -76,7 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             // --- Sign In Logic ---
             if (sign === "in") {
-                // ... (existing sign-in logic - seems correct)
+                // ... (rest of your sign-in logic)
                 if (!email || !password) {
                     return res.status(400).json({ success: false, error: 'Missing email or password for sign in' });
                 }
@@ -96,7 +107,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
             // --- Sign Up Logic ---
             else if (sign === "up") {
-                // ... (existing sign-up logic - seems correct)
+                // ... (rest of your sign-up logic)
                  if (!email || !password) {
                     return res.status(400).json({ success: false, error: 'Missing email or password for sign up' });
                 }
@@ -121,7 +132,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
             // --- Get Email Logic (using API Key) ---
             else if (sign === "getEmail") {
-                // ... (existing getEmail logic - seems correct)
+                // ... (rest of your getEmail logic)
                 if (!apiKeyFromBody || typeof apiKeyFromBody !== 'string' || apiKeyFromBody.trim() === '') {
                     console.warn(`getEmail request received without a valid apiKey.`);
                     return res.status(400).json({ success: false, error: 'Missing or invalid apiKey parameter in request body' });
@@ -142,14 +153,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
             // --- Github OAuth Code Exchange and Email Fetch Logic ---
             else if (sign === "github") {
-                // 1. Validate Input Code
+                // ... (rest of your github logic)
                 if (!code || typeof code !== 'string' || code.trim() === '') {
                     console.warn(`GitHub sign-in request received without a valid 'code'.`);
                     return res.status(400).json({ success: false, error: "Missing or invalid 'code' parameter in request body" });
                 }
                 console.log(`Received GitHub OAuth code starting with: ${code.substring(0, 5)}...`);
 
-                // 2. Check for Environment Variables
                 const clientId = process.env.GITHUB_CLIENT_ID;
                 const clientSecret = process.env.GITHUB_CLIENT_SECRET;
 
@@ -161,20 +171,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 let accessToken = '';
 
                 try {
-                    // 3. Exchange Code for Access Token
                     console.log("Exchanging code for GitHub access token...");
                     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Accept': 'application/json', // Important: Ask for JSON response
-                            'User-Agent': 'work-progress' // Optional but good practice
+                            'Accept': 'application/json',
+                            'User-Agent': 'work-progress'
                         },
                         body: JSON.stringify({
                             client_id: clientId,
                             client_secret: clientSecret,
                             code: code,
-                            redirect_uri: 'https://vswork-progress.vercel.app/account/github_handler.html' // Optional: Add if you specified one in the initial request
+                            redirect_uri: 'https://vswork-progress.vercel.app/account/github_handler.html'
                         }),
                     });
 
@@ -183,7 +192,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     if (!tokenResponse.ok || tokenData.error || !tokenData.access_token) {
                         console.error(`GitHub token exchange failed (${tokenResponse.status}):`, tokenData);
                         const errorMessage = tokenData.error_description || tokenData.error || `Failed to exchange code for token (status: ${tokenResponse.status})`;
-                        // Provide specific feedback for common issues
                         if (tokenData.error === 'bad_verification_code') {
                              return res.status(400).json({ success: false, error: 'Invalid or expired GitHub authorization code.' });
                         }
@@ -193,7 +201,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     accessToken = tokenData.access_token;
                     console.log(`Successfully obtained GitHub access token (type: ${tokenData.token_type}, scope: ${tokenData.scope})`);
 
-                    // 4. Use Access Token to Fetch User Emails
                     console.log("Fetching user emails from GitHub API...");
                     const emailResponse = await fetch('https://api.github.com/user/emails', {
                         method: 'GET',
@@ -205,110 +212,91 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     });
 
                     if (!emailResponse.ok) {
-                        // Handle GitHub API errors (e.g., invalid token scope, rate limits)
                         const errorBody = await emailResponse.text();
                         console.error(`GitHub API error fetching emails (${emailResponse.status}): ${errorBody}`);
-                        if (emailResponse.status === 401) { // Unauthorized - token issue
+                        if (emailResponse.status === 401) {
                              return res.status(401).json({ success: false, error: 'Invalid or expired GitHub token (or insufficient scope)' });
                         }
-                         // Other errors (403 Forbidden - scope?, 404 Not Found, 5xx Server Error)
                         return res.status(emailResponse.status).json({ success: false, error: `GitHub API error fetching emails: ${emailResponse.statusText}`, details: errorBody });
                     }
 
                     const emails: { email: string; primary: boolean; verified: boolean; visibility: string | null }[] = await emailResponse.json();
-
-                    // 5. Find Primary & Verified Email
                     const primaryVerifiedEmail = emails.find(e => e.primary && e.verified);
 
                     if (primaryVerifiedEmail) {
                         console.log(`Successfully found primary verified GitHub email: ${primaryVerifiedEmail.email}`);
-                        // *** IMPORTANT: Now you have the email. What next? ***
-                        // Do you want to:
-                        // a) Just return the email?
-                        // b) Check if this email exists in your DB and return *your* API key?
-                        // c) Create a new user in your DB if the email doesn't exist and return a new API key?
-
-                        // --- Example: Just return the email (Option a) ---
-                        
-
-                    
-                        
                         try {
-                            // Check if the user already exists in your database
                             const userExists = await checkUserExists(primaryVerifiedEmail.email);
                             if (!userExists) {
-                                // Modify getApi to handle GitHub login (e.g., null password, check a 'provider' column)
                                 console.log(`GitHub user ${primaryVerifiedEmail.email} not found in DB, creating...`);
-                                // You might need a different save function or modify saveToDatabase
-                                // to handle GitHub sign-ups (e.g., no password, set provider='github')
-                                let userApiKey = await saveToDatabase(primaryVerifiedEmail.email, "ilikecoding2025"); // Adjust saveToDatabase accordingly
+                                // Ensure saveToDatabase handles this case (e.g., generates a secure random password or marks as GitHub user)
+                                let userApiKey = await saveToDatabase(primaryVerifiedEmail.email, "ilikecoding2025"); // FIXME: Use a secure way to handle password/auth for GitHub users
                                 console.log(`Created new user for ${primaryVerifiedEmail.email} via GitHub.`);
-                                return res.status(201).json({ apiKey: userApiKey }); // 201 Created
+                                return res.status(201).json({ apiKey: userApiKey });
+                            } else {
+                                console.log(`Found existing user for ${primaryVerifiedEmail.email} via GitHub.`);
+                                // You need to retrieve the API key for the existing user.
+                                // Modify getApi or add a new function to get API key by email *without* password check for GitHub logins.
+                                // For now, returning an error as the logic is incomplete.
+                                console.warn(`Need to implement API key retrieval for existing GitHub user: ${primaryVerifiedEmail.email}`);
+                                // Example: Fetch the API key based on email
+                                const existingApiKey = await getApi(primaryVerifiedEmail.email, null); // Modify getApi to handle null password for known GitHub users
+                                if (existingApiKey) {
+                                    return res.status(200).json({ apiKey: existingApiKey });
+                                } else {
+                                    // This case shouldn't happen if checkUserExists was true, indicates DB inconsistency or logic error
+                                    console.error(`User ${primaryVerifiedEmail.email} exists but failed to retrieve API key.`);
+                                    return res.status(500).json({ success: false, error: 'Error retrieving API key for existing user.' });
                                 }
-                                 if (userExists) {
-                                    console.log(`User already exists for ${primaryVerifiedEmail.email}`);
-                                    // Adjust getApi to handle GitHub login
-                                 return res.status(500).json({ message: "exists" }); // 500 fail
-                                } 
-                                else {
-                                    console.log(`Found existing user for ${primaryVerifiedEmail.email} via GitHub.`);
-                                    return res.status(200).json({ 
-                                        message: "Error"
-                                     }); // 200 OK
-                                }
-                            } catch (dbError) {
-                                console.error(`Database error during GitHub user lookup/creation for ${primaryVerifiedEmail.email}:`, dbError);
-                                return res.status(500).json({ success: false, error: 'Database error processing GitHub login.' });
+                                // Original placeholder: return res.status(500).json({ message: "exists" }); // 500 fail - This was incorrect
                             }
-                       
-                        
-
+                        } catch (dbError) {
+                            console.error(`Database error during GitHub user lookup/creation for ${primaryVerifiedEmail.email}:`, dbError);
+                            return res.status(500).json({ success: false, error: 'Database error processing GitHub login.' });
+                        }
                     } else {
-                        // Handle case where no primary, verified email exists for the account
                         console.warn(`No primary and verified email found for the provided GitHub token.`);
                         return res.status(404).json({ success: false, error: 'No primary, verified email address found for this GitHub account. Please check your GitHub email settings.' });
                     }
 
                 } catch (error: any) {
-                    // Handle network errors or JSON parsing errors during the process
                     console.error('Error during GitHub OAuth code exchange or email fetch:', error);
                     return res.status(500).json({ success: false, error: 'Server error during GitHub authentication', details: error.message });
                 }
             }
-
             // --- Invalid Sign Value ---
             else {
                 console.warn(`Invalid 'sign' parameter value received: ${sign}`);
                 return res.status(400).json({ success: false, error: 'Invalid or missing sign parameter value' });
             }
         }
-        // --- Handle Methods Other Than POST/OPTIONS ---
+        // --- Handle Methods Other Than POST ---
+        // Note: OPTIONS is handled by the CORS middleware now
         else {
             console.log(`Method Not Allowed: ${req.method}`);
-            res.setHeader('Allow', ['POST', 'OPTIONS']);
+            res.setHeader('Allow', ['POST', 'OPTIONS']); // Keep OPTIONS here for clarity
             return res.status(405).end(`Method ${req.method} Not Allowed`);
         }
 
     } catch (error: any) {
-        // Catch top-level errors (e.g., CORS issues, unhandled exceptions)
+        // Catch top-level errors (e.g., CORS issues from the middleware itself, unhandled exceptions)
         console.error('Unhandled Handler error:', error);
-        if (error.message && error.message.includes('Not allowed by CORS')) {
-             // CORS middleware already sent the response, but log it
-             console.error("CORS blocked the request.");
-             // Avoid sending another response if CORS middleware already did
-             if (!res.headersSent) {
-                return res.status(403).json({ success: false, error: error.message });
-             }
-             return; // Stop processing
-        }
-        // Avoid sending another response if one was already sent
+        // Check if the response has already been sent (e.g., by the CORS middleware on error)
         if (!res.headersSent) {
-            const errorMessage = process.env.NODE_ENV === 'development' ? error.message : 'Internal Server Error';
-            return res.status(500).json({
-                success: false,
-                error: 'Internal Server Error',
-                details: errorMessage
-             });
+            if (error.message && error.message.includes('Not allowed by CORS')) {
+                 // CORS middleware might throw this error if origin check fails
+                 return res.status(403).json({ success: false, error: error.message });
+            } else {
+                const errorMessage = process.env.NODE_ENV === 'development' ? error.message : 'Internal Server Error';
+                return res.status(500).json({
+                    success: false,
+                    error: 'Internal Server Error',
+                    details: errorMessage // Only include details in dev or based on policy
+                 });
+            }
+        } else {
+            // Log the error even if headers were sent, but don't try to send another response
+             console.error("Error occurred after headers were sent:", error);
         }
     }
 }
