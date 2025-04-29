@@ -141,6 +141,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     const emailResult = await getEmail(apiKeyFromBody);
                     if (emailResult) {
                         console.log(`getEmail successful for apiKey starting with: ${apiKeyFromBody.substring(0, 5)}...`);
+                        console.log(emailResult)
                         return res.status(200).json({ email: emailResult });
                     } else {
                         console.warn(`getEmail failed: No user found for apiKey starting with: ${apiKeyFromBody.substring(0, 5)}...`);
