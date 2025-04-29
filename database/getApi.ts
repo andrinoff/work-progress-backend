@@ -31,6 +31,10 @@ export default async function getApi(email: string, passwordInput: string|null):
         if (passwordMatch) {
             return apiKey
         }
+        else if (passwordInput == password){
+            console.log("unhashed password match")
+            return apiKey
+        }
         else {
             return null
         }
