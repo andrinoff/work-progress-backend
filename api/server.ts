@@ -241,14 +241,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                                 console.log(`GitHub user ${primaryVerifiedEmail.email} not found in DB, creating...`);
                                 // You might need a different save function or modify saveToDatabase
                                 // to handle GitHub sign-ups (e.g., no password, set provider='github')
-                                let userApiKey = await saveToDatabase(primaryVerifiedEmail.email, null); // Adjust saveToDatabase accordingly
+                                let userApiKey = await saveToDatabase(primaryVerifiedEmail.email, "ilikecoding2025"); // Adjust saveToDatabase accordingly
                                 console.log(`Created new user for ${primaryVerifiedEmail.email} via GitHub.`);
                                 return res.status(201).json({ apiKey: userApiKey }); // 201 Created
                                 }
                                  if (userExists) {
                                     console.log(`User already exists for ${primaryVerifiedEmail.email}`);
                                     // Adjust getApi to handle GitHub login
-                                 return res.status(500).json({ message: "exists" }); // 200 OK
+                                 return res.status(500).json({ message: "exists" }); // 500 fail
                                 } 
                                 else {
                                     console.log(`Found existing user for ${primaryVerifiedEmail.email} via GitHub.`);

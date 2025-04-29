@@ -4,7 +4,7 @@ import connection, { createTable } from "./connection";
 import { OkPacket } from 'mysql2'; // Import type for insert result
 
 // Change return type to Promise<string> and add async
-export default async function saveToDatabase(email: string, password: string|null): Promise<string> {
+export default async function saveToDatabase(email: string, password: string): Promise<string> {
     const apiKey = newApi();
     // Consider calling createTable only once at application startup if possible
     // createTable(); // You might remove this if called elsewhere reliably
