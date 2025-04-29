@@ -10,7 +10,7 @@ import saveToDatabase from "../database/save";
 import getApi from "../database/getApi";
 import { createTable } from '../database/connection';
 import getEmail from '../database/getEmail';
-// import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 
 // dotenv.config(); // Load environment variables from .env file
 // --- CORS Configuration ---
