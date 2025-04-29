@@ -188,6 +188,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     });
 
                     const tokenData = await tokenResponse.json();
+                    // Inside the 'sign === "github"' block, after getting tokenData
+
+                    accessToken = tokenData.access_token;
+                    console.log(`Successfully obtained GitHub access token. Granted Scopes: ${tokenData.scope}`); // <--- ADD THIS
+                    console.log("Fetching user emails from GitHub API...");
+
 
                     if (!tokenResponse.ok || tokenData.error || !tokenData.access_token) {
                         console.error(`GitHub token exchange failed (${tokenResponse.status}):`, tokenData);
