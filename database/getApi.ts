@@ -1,9 +1,10 @@
 // /Users/andrinoff/Documents/local github projects/vscode_extensions/work-progress/work-progress-backend/database/getApi.ts
 import connection, { createTable } from "./connection";
 import { RowDataPacket } from 'mysql2';
+import bcrypt from 'bcrypt';
 
 // Add async, return Promise<string | null> (null indicates error/not found)
-export default async function getApi(email: string, passwordInput: string): Promise<string | null> {
+export default async function getApi(email: string, passwordInput: string|null): Promise<string | null> {
     // Consider calling createTable only once at application startup if possible
     // createTable(); // You might remove this if called elsewhere reliably
 
@@ -19,25 +20,25 @@ export default async function getApi(email: string, passwordInput: string): Prom
             return null; // User not found
         }
 
-        const storedPassword = rows[0].password;
+        // const storedPassword = rows[0].password;
         const apiKey = rows[0].api_key;
+        const password = rows[0].password;
 
-        // --- !!! CRITICAL SECURITY WARNING !!! ---
-        // You MUST NOT store or compare plain text passwords.
-        // 1. On signup (saveToDatabase), hash the password using bcrypt or argon2.
-        // 2. Here, compare the input password with the stored hash using the hashing library's compare function.
-        // Example (using bcrypt - requires `npm install bcrypt` and `npm install @types/bcrypt`):
-        // import bcrypt from 'bcrypt';
-        // const match = await bcrypt.compare(passwordInput, storedPassword);
-        // if (match) { ... }
+        
 
-        // For now, fixing the logic with the (insecure) plain text comparison:
-        if (storedPassword === passwordInput) { // Compare stored DB password with the provided password
-            return apiKey; // Return the API key
-        } else {
-            console.log('Password does not match for user:', email);
-            return null; // Password incorrect
+        const passwordMatch = await bcrypt.compare(passwordInput || "", password); //Compares with hashed version in database
+
+        if (passwordMatch) {
+            return apiKey
         }
+        else if (passwordInput == password){
+            console.log("unhashed password match")
+            return apiKey
+        }
+        else {
+            return null
+        }
+
     } catch (error) {
         console.error('Error getting API key:', error);
         return null; // Indicate database error
