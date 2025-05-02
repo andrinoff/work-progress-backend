@@ -20,7 +20,7 @@ const allowedOrigins = [
     'http://localhost:3000', // For local web dev
     'https://vswork-progress.vercel.app', // <<< The origin mentioned in the error
     'https://vswork-progress.vercel.app/account/github_handler.html', // Specific page
-    'https://work-progress.github.io/work-progress-website', // GitHub Pages
+    'https://work-progress.github.io', // GitHub Pages
 
     // Add specific VS Code extension origins if needed, e.g.:
     // 'vscode-webview://vscode.git', // Example, adjust based on actual origin
