@@ -12,7 +12,9 @@ export async function getLatestTime(apiKey): Promise<number> {
             return 0;
         }
         const latestTime = rows[0].latestTime;
+        console.log(`Latest time retrieved: ${latestTime}`);
         if (latestTime) {
+            console.log(`Latest time retrieved: ${latestTime}`);
             return latestTime;
         }
         else{
