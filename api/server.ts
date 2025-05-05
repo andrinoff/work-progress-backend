@@ -8,10 +8,11 @@ import util from 'util';
 import checkUserExists from "../database/check";
 import saveToDatabase from "../database/save";
 import getApi from "../database/getApi";
-import { createTable } from '../database/connection';
+import { createTable, createTable2 } from '../database/connection';
 import getEmail from '../database/getEmail';
 import dotenv from 'dotenv';
 import {getLatestTime, updateLatestTime} from '../database/latestTime';
+import { create } from 'domain';
 
 // dotenv.config(); // Load environment variables from .env file - uncomment if needed locally or configure in Vercel
 
@@ -83,6 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Ensure database table exists (idempotent)
         await createTable();
+        await createTable2();
 
         if (req.method === 'POST') {
             // Destructure expected fields from body
