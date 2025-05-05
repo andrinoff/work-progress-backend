@@ -13,13 +13,7 @@ export async function getLatestTime(apiKey): Promise<number> {
         }
         const latestTime = rows[0].latestTime;
         console.log(`Latest time retrieved: ${latestTime}`);
-        if (latestTime) {
-            console.log(`Latest time retrieved: ${latestTime}`);
-            return latestTime;
-        }
-        else{
-            return 0; // Default value if latestTime is null or undefined
-        }
+        return latestTime;
          
 }catch (error) {
         console.error('Error getting latest time:', error);
