@@ -11,10 +11,25 @@ const connection = mysql.createConnection({
 var sql = `CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    api_key VARCHAR(255) PRIMARY KEY,
-    latestTime VARCHAR(255) DEFAULT 0
+    api_key VARCHAR(255) PRIMARY KEY
 )`;
 
+var sql2 = `CREATE TABLE IF NOT EXISTS latestTime (
+    api_key VARCHAR(255) PRIMARY KEY,
+    latestTime INT DEFAULT 0
+)`;
+const createTable2 = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        connection.query(sql2, function (err, result) {
+            if (err) {
+                console.error("Error creating table:", err);
+                return reject(err);
+            }
+            console.log("Table created or already exists.");
+            resolve();
+        });
+    });
+};
 
 
 const createTable = (): Promise<void> => {
@@ -31,4 +46,4 @@ const createTable = (): Promise<void> => {
 };
 
 export default connection;
-export { createTable };
+export { createTable, createTable2 };
