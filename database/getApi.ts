@@ -15,7 +15,7 @@ export default async function getApi(email: string, passwordInput: string|null):
             [email]
         );
         const sql2 = `
-        INSERT INTO latestTime (api_key) VALUES (?)
+        INSERT IGNORE INTO latestTime (api_key) VALUES (?)
     `;
 
         if (rows.length === 0) {

@@ -13,7 +13,7 @@ export default async function saveToDatabase(email: string, password: string): P
         INSERT INTO users (email, password, api_key) VALUES (?, ?, ?)
     `;
     const sql2 = `
-        INSERT INTO latestTime (api_key) VALUES (?)
+        INSERT IGNORE INTO latestTime (api_key) VALUES (?)
     `;
 
     const hashedPassword = await bcrypt.hash(password, 10);
