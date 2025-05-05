@@ -12,7 +12,7 @@ var sql = `CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     api_key VARCHAR(255) PRIMARY KEY,
-    latestTime INT DEFAULT 0
+    latestTime VARCHAR(255) INT DEFAULT 0
 )`;
 
 
