@@ -294,7 +294,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 try {
                     await updateLatestTime(apiKeyFromBody, latestTime);
                     console.log(`Latest time updated successfully for API key starting with: ${apiKeyFromBody.substring(0, 5)}...`);
-                    return res.status(200).json({ success: true });
+                    return res.status(200).json({ success: true, message: 'Latest time updated successfully' });
                 } catch (error: any) {
                     console.error(`Error during updateLatestTime processing for key starting with ${apiKeyFromBody.substring(0, 5)}...:`, error);
                     return res.status(500).json({ success: false, error: 'Database server error during updateLatestTime: ' + error.message });
