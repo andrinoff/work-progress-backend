@@ -11,6 +11,7 @@ import getApi from "../database/getApi";
 import { createTable } from '../database/connection';
 import getEmail from '../database/getEmail';
 import dotenv from 'dotenv';
+import {getLatestTime, updateLatestTime} from '../database/latestTime';
 
 // dotenv.config(); // Load environment variables from .env file - uncomment if needed locally or configure in Vercel
 
@@ -85,7 +86,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (req.method === 'POST') {
             // Destructure expected fields from body
-            const { email, password, sign, apiKey: apiKeyFromBody, code } = req.body || {};
+            const { email, password, sign, apiKey: apiKeyFromBody, code, latestTime } = req.body || {};
 
             // --- Sign In Logic ---
             if (sign === "in") {
@@ -273,6 +274,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     console.error('Error during GitHub OAuth code exchange or email fetch:', error);
                     return res.status(500).json({ success: false, error: 'Server error during GitHub authentication', details: error.message });
                 }
+
+            }
+            else if (sign === "getLatestTime") {
+                const latestTime = await getLatestTime(apiKeyFromBody);
+                return res.status(200).json({ latestTime:  latestTime });
+            }
+            else if (sign === "updateLatestTime") {
+                if (!apiKeyFromBody || typeof apiKeyFromBody !== 'string' || apiKeyFromBody.trim() === '') {
+                    console.warn(`updateLatestTime request received without a valid apiKey.`);
+                    return res.status(400).json({ success: false, error: 'Missing or invalid apiKey parameter in request body' });
+                }
+                if (latestTime === undefined || typeof latestTime !== 'number') {
+                    console.warn(`updateLatestTime request received without a valid latestTime.`);
+                    return res.status(400).json({ success: false, error: 'Missing or invalid latestTime parameter in request body' });
+                }
+                try {
+                    await updateLatestTime(apiKeyFromBody, latestTime);
+                    console.log(`Latest time updated successfully for API key starting with: ${apiKeyFromBody.substring(0, 5)}...`);
+                    return res.status(200).json({ success: true });
+                } catch (error: any) {
+                    console.error(`Error during updateLatestTime processing for key starting with ${apiKeyFromBody.substring(0, 5)}...:`, error);
+                    return res.status(500).json({ success: false, error: 'Database server error during updateLatestTime: ' + error.message });
+                }
             }
             // --- Invalid Sign Value ---
             else {
@@ -310,3 +334,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
     }
 }
+
+

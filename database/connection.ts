@@ -11,7 +11,8 @@ const connection = mysql.createConnection({
 var sql = `CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    api_key VARCHAR(255) PRIMARY KEY
+    api_key VARCHAR(255) PRIMARY KEY,
+    latestTime INT DEFAULT 0
 )`;
 
 
