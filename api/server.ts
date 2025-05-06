@@ -11,7 +11,7 @@ import getApi from "../database/getApi";
 import { createTable, createTable2 } from '../database/connection';
 import getEmail from '../database/getEmail';
 import dotenv from 'dotenv';
-import {getLatestTime, updateLatestTime} from '../database/latestTime';
+import {getWeekTime, updateLatestTime as updateWeekTime} from '../database/week';
 import { create } from 'domain';
 
 // dotenv.config(); // Load environment variables from .env file - uncomment if needed locally or configure in Vercel
@@ -64,6 +64,7 @@ const runCorsMiddleware = util.promisify(corsMiddleware);
 
 // --- Main Serverless Function Handler ---
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    
     try {
         // Run CORS middleware first. It will handle OPTIONS requests automatically.
         await runCorsMiddleware(req, res);
@@ -88,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (req.method === 'POST') {
             // Destructure expected fields from body
-            const { email, password, sign, apiKey: apiKeyFromBody, code, latestTime } = req.body || {};
+            const { email, password, sign, apiKey: apiKeyFromBody, code, dayTime, day } = req.body || {};
 
             // --- Sign In Logic ---
             if (sign === "in") {
@@ -278,21 +279,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 }
 
             }
-            else if (sign === "getLatestTime") {
-                const latestTime = await getLatestTime(apiKeyFromBody);
-                return res.status(200).json({ latestTime:  latestTime });
+            else if (sign === "getWeekTime") {
+                interface WeekdayTime {
+                    monday: number;
+                    tuesday: number;
+                    wednesday: number;
+                    thursday: number;
+                    friday: number;
+                    saturday: number;
+                    sunday: number;
+                    totalTime: number;
+                }
+
+                const weekTimeArr: number[] | 0 = await getWeekTime(apiKeyFromBody);
+                const weekday: WeekdayTime = {
+                    monday: weekTimeArr[0],
+                    tuesday: weekTimeArr[1],
+                    wednesday: weekTimeArr[2],
+                    thursday: weekTimeArr[3],
+                    friday: weekTimeArr[4],
+                    saturday: weekTimeArr[5],
+                    sunday: weekTimeArr[6],
+                    totalTime: weekTimeArr[7],
+                };
+                return res.status(200).json({ monday:  weekday.monday, 
+                    tuesday: weekday.tuesday, 
+                    wednesday: weekday.wednesday, 
+                    thursday: weekday.thursday, 
+                    friday: weekday.friday, 
+                    saturday: weekday.saturday, 
+                    sunday: weekday.sunday, 
+                    totalTime: weekday.totalTime 
+                });
             }
-            else if (sign === "updateLatestTime") {
+            else if (sign === "updateWeekTime") {
                 if (!apiKeyFromBody || typeof apiKeyFromBody !== 'string' || apiKeyFromBody.trim() === '') {
                     console.warn(`updateLatestTime request received without a valid apiKey.`);
                     return res.status(400).json({ success: false, error: 'Missing or invalid apiKey parameter in request body' });
                 }
-                if (latestTime === undefined || typeof latestTime !== 'number') {
+                if (dayTime === undefined || typeof dayTime !== 'number') {
                     console.warn(`updateLatestTime request received without a valid latestTime.`);
                     return res.status(400).json({ success: false, error: 'Missing or invalid latestTime parameter in request body' });
                 }
                 try {
-                    await updateLatestTime(apiKeyFromBody, latestTime);
+                    await updateWeekTime(apiKeyFromBody, dayTime, day);
                     console.log(`Latest time updated successfully for API key starting with: ${apiKeyFromBody.substring(0, 5)}...`);
                     return res.status(200).json({ success: true, message: 'Latest time updated successfully' });
                 } catch (error: any) {
