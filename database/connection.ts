@@ -24,6 +24,10 @@ var sql2 = `CREATE TABLE IF NOT EXISTS time (
     saturday INT DEFAULT 0,
     sunday INT DEFAULT 0
 )`;
+var githubsql = `CREATE TABLE IF NOT EXISTS github (
+    email VARCHAR(255) NOT NULL UNIQUE,
+    api_key VARCHAR(255) PRIMARY KEY
+)`;
 const createTable2 = (): Promise<void> => {
     return new Promise((resolve, reject) => {
         connection.query(sql2, function (err, result) {
@@ -37,7 +41,18 @@ const createTable2 = (): Promise<void> => {
     });
 };
 
-
+const createTableGitHub = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        connection.query(githubsql, function (err, result) {
+            if (err) {
+                console.error("Error creating table:", err);
+                return reject(err);
+            }
+            console.log("Table created or already exists.");
+            resolve();
+        });
+    });
+};
 const createTable = (): Promise<void> => {
     return new Promise((resolve, reject) => {
         connection.query(sql, function (err, result) {
@@ -52,4 +67,4 @@ const createTable = (): Promise<void> => {
 };
 
 export default connection;
-export { createTable, createTable2 };
+export { createTable, createTable2, createTableGitHub };
