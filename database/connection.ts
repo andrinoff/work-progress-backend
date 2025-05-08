@@ -13,6 +13,31 @@ var sql = `CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     api_key VARCHAR(255) PRIMARY KEY
 )`;
+
+var sql2 = `CREATE TABLE IF NOT EXISTS time (
+    api_key VARCHAR(255) PRIMARY KEY,
+    monday INT DEFAULT 0,
+    tuesday INT DEFAULT 0,
+    wednesday INT DEFAULT 0,
+    thursday INT DEFAULT 0,
+    friday INT DEFAULT 0,
+    saturday INT DEFAULT 0,
+    sunday INT DEFAULT 0
+)`;
+const createTable2 = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        connection.query(sql2, function (err, result) {
+            if (err) {
+                console.error("Error creating table:", err);
+                return reject(err);
+            }
+            console.log("Table created or already exists.");
+            resolve();
+        });
+    });
+};
+
+
 const createTable = (): Promise<void> => {
     return new Promise((resolve, reject) => {
         connection.query(sql, function (err, result) {
@@ -27,4 +52,4 @@ const createTable = (): Promise<void> => {
 };
 
 export default connection;
-export { createTable };
+export { createTable, createTable2 };

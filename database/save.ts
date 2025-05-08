@@ -12,11 +12,16 @@ export default async function saveToDatabase(email: string, password: string): P
     const sql = `
         INSERT INTO users (email, password, api_key) VALUES (?, ?, ?)
     `;
+    const sql2 = `
+        INSERT IGNORE INTO time (api_key) VALUES (?)
+    `;
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
         // Use .promise().query() and await the result
         const [result] = await connection.promise().query(sql, [email, hashedPassword, apiKey]);
+        await connection.promise().query(sql2, apiKey);
         console.log('User inserted, ID:', result.insertId); // Log success
         return apiKey; // Return apiKey AFTER successful insertion
     } catch (err) {

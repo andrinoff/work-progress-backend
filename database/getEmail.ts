@@ -1,4 +1,3 @@
-// /Users/andrinoff/Documents/local github projects/vscode_extensions/work-progress/work-progress-backend/database/getEmail.ts
 import connection, { createTable } from "./connection";
 import { RowDataPacket } from 'mysql2';
 
