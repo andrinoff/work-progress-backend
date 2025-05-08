@@ -16,6 +16,9 @@ import { create } from 'domain';
 
 // dotenv.config(); // Load environment variables from .env file - uncomment if needed locally or configure in Vercel
 
+
+// TODO: split into separate files
+
 // --- CORS Configuration ---
 const allowedOrigins = [
     'https://work-progress-git-development-dreysekis-projects.vercel.app',
