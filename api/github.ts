@@ -1,3 +1,5 @@
+// Backend API route to handle sign-in requests through GitHub
+
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createTable, createTable2 } from '../database/connection';
 import dotenv from 'dotenv';

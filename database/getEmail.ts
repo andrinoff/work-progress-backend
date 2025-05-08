@@ -1,11 +1,10 @@
-import connection, { createTable } from "./connection";
+// Backend SQL query to get email from api key
+// This function retrieves the email associated with a given API key from the database.
+
+import connection from "./connection";
 import { RowDataPacket } from 'mysql2';
 
-// Add async, return Promise<string | null>
 export default async function getEmail(apiKey: string): Promise<string | null> {
-    // Consider calling createTable only once at application startup if possible
-    // createTable(); // You might remove this if called elsewhere reliably
-
     try {
         // Use correct column name 'api_key' and pass the parameter
         const [rows] = await connection.promise().execute(
@@ -16,8 +15,17 @@ export default async function getEmail(apiKey: string): Promise<string | null> {
         if (rows.length > 0) {
             return rows[0].email; // Return the found email
         } else {
-            console.log('No email found for API key:', apiKey);
-            return null; // API key not found
+            const [rowsGithub]  = await connection.promise().execute(
+                'SELECT email FROM github WHERE api_key = ?',
+                [apiKey]
+            ) as [RowDataPacket[], any];
+
+            if (rowsGithub.length > 0) {
+                return rowsGithub[0].email; // Return the found email
+            }
+            else {
+                return null; // Email not found
+            }
         }
     } catch (error) {
         console.error('Error getting email by API key:', error);
