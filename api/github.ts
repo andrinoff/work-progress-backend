@@ -111,6 +111,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             console.log(`Found existing user for ${primaryVerifiedEmail.email} via GitHub.`);
                             console.warn(`Need to implement API key retrieval for existing GitHub user: ${primaryVerifiedEmail.email}`);
                             const existingApiKey = await checkGitHub(primaryVerifiedEmail.email);
+                            console.log(existingApiKey) // FIXME: debugging, gives out an error here
                             if (existingApiKey) {
                                 return res.status(200).json({ apiKey: existingApiKey });
                             } else {
