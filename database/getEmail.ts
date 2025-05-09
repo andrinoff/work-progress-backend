@@ -4,6 +4,7 @@
 import connection from "./connection";
 import { RowDataPacket } from 'mysql2';
 
+// TODO: test
 export default async function getEmail(apiKey: string): Promise<string | null> {
     try {
         // Use correct column name 'api_key' and pass the parameter
