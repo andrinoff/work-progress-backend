@@ -1,10 +1,9 @@
-// /Users/andrinoff/Documents/local github projects/vscode_extensions/work-progress/work-progress-backend/database/save.ts
 import newApi from "../api_keys/generate_api";
 import connection, { createTable } from "./connection";
 import bcrypt from 'bcrypt';
 
 // Change return type to Promise<string> and add async
-export default async function saveToDatabase(email: string, password: string): Promise<string> {
+export default async function save(email: string, password: string): Promise<string> {
     const apiKey = newApi();
     // Consider calling createTable only once at application startup if possible
     // createTable(); // You might remove this if called elsewhere reliably
