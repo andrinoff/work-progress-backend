@@ -8,6 +8,8 @@ import saveGitHub from '../database/GitHubSave';
 import checkGitHub from '../database/GitHubCheck';
 dotenv.config(); // for local development
 // TODO: test
+// Test is going to be hard to do,
+// because it redirects to the vswork-progress app
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
