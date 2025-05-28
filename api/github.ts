@@ -43,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             try {
                 console.log("Exchanging code for GitHub access token...");
                 console.log(code)
-                const tokenResponse = await fetch('<https://github.com/login/oauth/access_token>', {
+                const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         client_id: clientId,
                         client_secret: clientSecret,
                         code: code,
-                        redirect_uri: '<https://vswork-progress.vercel.app/account/github_handler.html>'
+                        redirect_uri: 'https://vswork-progress.vercel.app/account/github_handler.html'
                     }),
                 });
 
@@ -79,7 +79,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 console.log(`Successfully obtained GitHub access token (type: ${tokenData.token_type}, scope: ${tokenData.scope})`);
 
                 console.log("Fetching user emails from GitHub API...");
-                const emailResponse = await fetch('<https://api.github.com/user/emails>', {
+                const emailResponse = await fetch('https://api.github.com/user/emails', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
