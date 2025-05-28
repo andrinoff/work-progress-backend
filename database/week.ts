@@ -5,7 +5,7 @@ import connection from "./connection";
 export async function getWeekTime(apiKey) {
     try {    
         const [rows] = await connection.promise().execute(
-                'SELECT monday,tuesday,wednesday,thursday,friday,saturday,sunday, latestTime FROM time WHERE api_key = ?', // Fetch api_key too
+                'SELECT monday,tuesday,wednesday,thursday,friday,saturday,sunday,latestTime FROM time WHERE api_key = ?', // Fetch api_key too
                 [apiKey]
             );
         if (rows.length === 0) {
@@ -18,8 +18,8 @@ export async function getWeekTime(apiKey) {
         const friday = parseInt(rows[0].friday, 10);
         const saturday = parseInt(rows[0].saturday, 10);
         const sunday = parseInt(rows[0].sunday, 10);
-        const totalTime = monday + tuesday + wednesday + thursday + friday + saturday + sunday;
-        console.log(`Latest time retrieved: ${totalTime}`);
+        const latestTime = parseInt(rows[0].latestTime, 10)
+        console.log(`Last time retrieved: ${latestTime}`);
         return [
             monday,
             tuesday,
@@ -28,7 +28,7 @@ export async function getWeekTime(apiKey) {
             friday,
             saturday,
             sunday,
-            totalTime
+            latestTime
         ];
          
 }catch (error) {

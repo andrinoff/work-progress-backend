@@ -8,9 +8,6 @@ import getEmail from '../database/getEmail';
 
 dotenv.config(); // for local development
 
-// TODO: test
-
-
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
