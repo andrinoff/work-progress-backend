@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import getApi from "../database/getApi";
-import { createTable, createTable2 } from '../database/connection';
+import { createTable, createTable2, createTable3 } from '../database/connection';
 import dotenv from 'dotenv';
 import { runCorsMiddleware } from './cors_config';
 
@@ -16,6 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Ensure database table exists (idempotent)
         await createTable();
         await createTable2();
+        await createTable3();
 
         if (req.method === 'POST') {
             // Destructure expected fields from body

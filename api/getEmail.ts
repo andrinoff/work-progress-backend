@@ -1,7 +1,7 @@
 // Backend API route to handle getting emails from api keys requests
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createTable, createTable2, createTableGitHub } from '../database/connection';
+import { createTable, createTable2, createTable3, createTableGitHub } from '../database/connection';
 import dotenv from 'dotenv';
 import { runCorsMiddleware } from './cors_config';
 import getEmail from '../database/getEmail';
@@ -17,6 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Ensure database table exists (idempotent)
         await createTable();
         await createTable2();
+        await createTable3()
         await createTableGitHub();
 
         if (req.method === 'POST') {
