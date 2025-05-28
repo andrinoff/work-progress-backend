@@ -109,7 +109,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             // Ensure saveToDatabase handles this case (e.g., generates a secure random password or marks as GitHub user)
                             let userApiKey = await saveGitHub(primaryVerifiedEmail.email);
                             console.log(`Created new user for ${primaryVerifiedEmail.email} via GitHub.`);
-                            return res.status(201).json({ apiKey: userApiKey });
+                            return res.status(201).json({ apiKey: userApiKey, email: primaryVerifiedEmail.email });
                         } else {
                             console.log(`Found existing user for ${primaryVerifiedEmail.email} via GitHub.`);
                             console.warn(`Need to implement API key retrieval for existing GitHub user: ${primaryVerifiedEmail.email}`);
