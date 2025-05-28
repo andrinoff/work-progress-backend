@@ -33,8 +33,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     return res.status(200).json({ success: true, time: time[7] });
                 }
                 else {
-                    console.error("time is empty")
-                    return res.status(404).json({success: false, error: "Time is empty"})
+                    return
                 }
                     
                 } catch (error) {
