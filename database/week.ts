@@ -5,7 +5,7 @@ import connection from "./connection";
 export async function getWeekTime(apiKey) {
     try {    
         const [rows] = await connection.promise().execute(
-                'SELECT monday,tuesday,wednesday,thursday,friday,saturday,sunday FROM time WHERE api_key = ?', // Fetch api_key too
+                'SELECT monday,tuesday,wednesday,thursday,friday,saturday,sunday, latestTime FROM time WHERE api_key = ?', // Fetch api_key too
                 [apiKey]
             );
         if (rows.length === 0) {

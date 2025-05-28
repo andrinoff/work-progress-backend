@@ -22,7 +22,8 @@ var sql2 = `CREATE TABLE IF NOT EXISTS time (
     thursday INT DEFAULT 0,
     friday INT DEFAULT 0,
     saturday INT DEFAULT 0,
-    sunday INT DEFAULT 0
+    sunday INT DEFAULT 0,
+    latestSession INT DEFAULT 0
 )`;
 var githubsql = `CREATE TABLE IF NOT EXISTS github (
     email VARCHAR(255) NOT NULL UNIQUE,
