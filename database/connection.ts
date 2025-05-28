@@ -22,7 +22,7 @@ var sql2 = `CREATE TABLE IF NOT EXISTS time (
     thursday INT DEFAULT 0,
     friday INT DEFAULT 0,
     saturday INT DEFAULT 0,
-    sunday INT DEFAULT 0,
+    sunday INT DEFAULT 0
 )`;
 var sql3 = `CREATE TABLE IF NOT EXISTS latest(
     api_key VARCHAR(255) PRIMARY KEY,
