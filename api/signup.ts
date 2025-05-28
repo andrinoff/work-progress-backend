@@ -6,7 +6,6 @@ import { runCorsMiddleware } from './cors_config';
 
 dotenv.config(); // for local development
 
-// TODO: test
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {

@@ -7,9 +7,7 @@ import { runCorsMiddleware } from './cors_config';
 import saveGitHub from '../database/GitHubSave';
 import checkGitHub from '../database/GitHubCheck';
 dotenv.config(); // for local development
-// TODO: test
-// Test is going to be hard to do,
-// because it redirects to the vswork-progress app
+
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
@@ -114,7 +112,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             console.log(`Found existing user for ${primaryVerifiedEmail.email} via GitHub.`);
                             console.warn(`Need to implement API key retrieval for existing GitHub user: ${primaryVerifiedEmail.email}`);
                             const existingApiKey = await checkGitHub(primaryVerifiedEmail.email);
-                            console.log(existingApiKey) // FIXME: debugging, gives out an error here
+                            console.log(existingApiKey)
                             if (existingApiKey) {
                                 return res.status(200).json({ apiKey: existingApiKey });
                             } else {
