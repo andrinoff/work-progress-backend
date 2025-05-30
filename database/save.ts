@@ -14,6 +14,9 @@ export default async function save(email: string, password: string): Promise<str
     const sql2 = `
         INSERT IGNORE INTO time (api_key) VALUES (?)
     `;
+    const sql3 = `
+        INSERT IGNORE INTO latest (api_key) VALUES (?)
+    `;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -21,6 +24,7 @@ export default async function save(email: string, password: string): Promise<str
         // Use .promise().query() and await the result
         const [result] = await connection.promise().query(sql, [email, hashedPassword, apiKey]);
         await connection.promise().query(sql2, apiKey);
+        await connection.promise().query(sql3, apiKey);
         console.log('User inserted, ID:', result.insertId); // Log success
         return apiKey; // Return apiKey AFTER successful insertion
     } catch (err) {
