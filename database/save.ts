@@ -14,6 +14,8 @@ export default async function save(email: string, password: string): Promise<str
     const sql2 = `
         INSERT IGNORE INTO time (api_key) VALUES (?)
     `;
+    const sql3 = 
+    
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
