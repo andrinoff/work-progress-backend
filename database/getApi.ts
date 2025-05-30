@@ -17,6 +17,9 @@ export default async function getApi(email: string, passwordInput: string|null):
         const sql2 = `
         INSERT IGNORE INTO latestTime (api_key) VALUES (?)
     `;
+        const sql3 = `
+            INSERT IGNORE INTO latest (api_key) VALUES (?)
+        `;
 
         if (rows.length === 0) {
             console.log('User not found for API retrieval:', email);
@@ -28,6 +31,7 @@ export default async function getApi(email: string, passwordInput: string|null):
         const password = rows[0].password;
 
         await connection.promise().query(sql2, apiKey);
+        await connection.promise().query(sql3, apiKey);
 
         const passwordMatch = await bcrypt.compare(passwordInput || "", password); //Compares with hashed version in database
 
