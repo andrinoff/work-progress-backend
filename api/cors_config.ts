@@ -7,7 +7,6 @@ const allowedOrigins = [
     'https://vswork-progress.vercel.app', // <<< The origin mentioned in the error
     'https://vswork-progress.vercel.app/account/github_handler.html', // Specific page
     'https://work-progress.github.io', // GitHub Pages
-    'https://andrinoff.github.io', // GitHub Pages 2
 
     // Add specific VS Code extension origins if needed, e.g.:
     // 'vscode-webview://vscode.git', // Example, adjust based on actual origin
