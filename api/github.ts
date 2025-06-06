@@ -29,8 +29,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
             console.log(`Received GitHub OAuth code starting with: ${code.substring(0, 5)}...`);
 
-            const clientId = process.env._GITHUB_CLIENT_ID;
-            const clientSecret = process.env._GITHUB_CLIENT_SECRET;
+            const clientId = process.env.GITHUB_CLIENT_ID;
+            const clientSecret = process.env.GITHUB_CLIENT_SECRET;
 
             if (!clientId || !clientSecret) {
                 console.error("GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET environment variables are not set.");
