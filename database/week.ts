@@ -36,14 +36,3 @@ export async function getWeekTime(apiKey) {
         return 0; // Indicate database error
     }
 }
-
-export async function updateLatestTime(apiKey: string, dayTime: number, day:string): Promise<void> {
-    try {
-        await connection.promise().execute(
-            'UPDATE time SET ' + day + ' = ? WHERE api_key = ?',
-            [dayTime, apiKey]
-        );
-    } catch (error) {
-        console.error('Error updating latest time:', error);
-    }
-}

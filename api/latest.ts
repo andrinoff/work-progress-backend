@@ -5,7 +5,7 @@ import { createTable, createTable2, createTable3, createTableGitHub } from '../d
 import dotenv from 'dotenv';
 import { runCorsMiddleware } from './cors_config';
 import { getWeekTime } from '../database/week';
-import getLatest from '../database/latest';
+import {getLatest} from '../database/latest';
 
 
 dotenv.config(); // for local development

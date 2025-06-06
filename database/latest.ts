@@ -2,7 +2,7 @@ import connection from "./connection";
 import bcrypt from 'bcrypt';
 
 // Change return type to Promise<string> and add async
-export default async function getLatest(apiKey: string): Promise<string> {
+export async function getLatest(apiKey: string): Promise<string> {
     
 
 
@@ -14,7 +14,20 @@ export default async function getLatest(apiKey: string): Promise<string> {
         return rows[0].latest
 
     } catch (err) {
-        console.error('Error saving user to database:', err);
+        console.error('Error updating latest for user to database:', err);
+        // Re-throw the error so the caller (server.ts) can handle it
+        throw err;
+    }
+}
+export async function saveLatest(apiKey: string, latest: string): Promise<void> {
+    try {
+        // Use a prepared statement to prevent SQL injection
+        await connection.promise().execute(
+            'INSERT INTO latest (api_key, latest) VALUES (?, ?) ON DUPLICATE KEY UPDATE latest = ?',
+            [apiKey, parseFloat(latest)]
+        );
+    } catch (err) {
+        console.error('Error saving latest to database:', err);
         // Re-throw the error so the caller (server.ts) can handle it
         throw err;
     }
